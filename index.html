@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css">
+
+<style>
+
+body {
+padding: 0;
+margin: 0;
+}
+
+html,
+body,
+#map {
+height: 100%;
+}
+
+.leaflet-label-pane {
+pointer-events: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="map">
+
+<script>
+
+// initialize the map on the "map" div with a given center and zoom
+
+
+
+
+var map = L.map('map', {
+center: [35.5, -97.3],
+zoom: 10
+});
+
+// basemap
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+}).addTo( map );
+
+
+
+
+var taxes_no_year = L.tileLayer.wms("http://cunn1645.ddns.net:80/geoserver/ows?service=WMS", {
+layers: 'deliquients_no_year',
+format: 'image/png',
+transparent: true,
+attribution: "BREC",
+opacity: 0.8,
+pointerCursor: true
+}).addTo(map);
+//   map.addEventListener('click', Identify);
+
+
+/*
+var taxes_year = L.tileLayer.wms("http://cunn1645.ddns.net/geoserver/ows?service=WMS", {
+layers: 'deliquients_years',
+format: 'image/png',
+transparent: true,
+attribution: "BREC",
+opacity: 0.8,
+pointerCursor: true
+}).addTo(map);
+*/
+
+
+var owsrootUrl ="http://cunn1645.ddns.net/geoserver/ows";
+
+var defaultParameters = {
+
+		service: 'WFS',
+		version: '2.0.0',
+		request: 'GetFeature',
+		typeName: 'taxes:deliquients_years',
+		outputFormat: 'application/json',
+		format_options:'callback:getJson',
+		SrsName:'EPSG:4269',
+		cql_filter:'earliest_year<2017'
+	};
+
+var parametres = L.Util.extend(defaultParameters);
+
+var URL = owsrootUrl + L.Util.getParamString(parametres);
+
+//var WFSLayer =null;
+
+function setColor(earliest_year) {
+        return earliest_year == '2018'  ? '#FC4E2A' :
+               earliest_year == '2017'   ? '#FD8D3C' :
+               earliest_year == '2016'   ? '#FEB24C' :
+               earliest_year <= '2015'   ? '#FED976' :
+                  '#FFEDA0';
+        }
+
+
+var ajax = $.ajax({
+
+url:URL,
+dataType:'json',
+jsonpCallback:'getJson',
+success: function(response){
+   WFSLayer = L.geoJson(response,{
+		style:function(feature){
+			return {
+				flllColor: setColor(feature.properties.earliest_year),
+				stroke:true,
+				fillOpacity:0
+			};
+		},
+		onEachFeature: function (feature, layer){
+			popupOptions = {maxWidth: 400};
+			layer.bindPopup(
+			"<span style='color: green'>Taxes Due Since: </span>" + feature.properties.earliest_year +
+			"<br />" + 
+			"<span style='color: green'>Primary Address: </span> " + feature.properties.mailingaddress1 + 
+			"<br />" + 
+			"<span style='color: green'>Secondy Address: </span>" + feature.properties.mailingaddress2 +
+			"<br />" + 
+			"<span style='color: green'>Primary Name: </span>" + feature.properties.name1 +
+			"<br />" + 
+			"<span style='color: green'>Second Name: </span>" + feature.properties.name2 +
+			"<br />" + 
+			"<span style='color: green'>Zipcode: </span>" + feature.properties.zipcode +
+			"<br />" + 
+			"<span style='color: green'>Tax Website: </span> <a href='" +  feature.properties.tax_link	+ "'target='_blank'>Tax Site</a>"	
+			,popupOptions);
+		}
+	}).addTo(map);
+}
+
+});
+
+/*
+map.addEventListener('click', onMapClick);
+
+popup = new L.Popup({maxWidth: 1000});
+
+function onMapClick(e) {
+var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' +         e.latlng.lng.toFixed(3) + ')';
+var BBOX =         map.getBounds()._southWest.lng+","+map.getBounds()._southWest.lat+","+map.getBounds()._northEast.lng+","
++map.getBounds()._northEast.lat;
+var WIDTH= map.getSize().x;
+var HEIGHT = map.getSize().y;
+var X = map.layerPointToContainerPoint(e.layerPoint).x;
+var Y = map.layerPointToContainerPoint(e.layerPoint).y;
+
+var URL = 'http://cunn1645.ddns.net/geoserver/taxes/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=taxes%3Adeliquients_years&STYLES&LAYERS=taxes%3Adeliquients_years&BBOX='+BBOX+'&FEATURE_COUNT=1&HEIGHT='+HEIGHT+'&WIDTH='+WIDTH+'&FORMAT=image%2Fpng&INFO_FORMAT=text%2fhtml&SRS=EPSG%3A4269&X='+X+'&Y='+Y;
+popup.setLatLng(e.latlng);
+
+popup.setContent("<iframe src='"+URL+"' width='600' height='400' frameborder='0'></iframe>");
+//if(urlLayers.length > 0):
+map.openPopup(popup);
+}
+
+*/	
+
+
+/*
+http://cunn1645.ddns.net/geoserver/taxes/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=taxes%3Adeliquients_no_year&STYLES&LAYERS=taxes%3Adeliquients_no_year&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=50&X=50&Y=50&SRS=EPSG%3A4269&WIDTH=101&HEIGHT=101&BBOX=-97.65884399414062%2C35.28762811794877%2C-97.38143920898438%2C35.56503290310502
+
+
+http://cunn1645.ddns.net/geoserver/taxes/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=taxes%3Adeliquients_years&STYLES&LAYERS=taxes%3Adeliquients_years&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=50&X=50&Y=50&SRS=EPSG%3A4269&WIDTH=101&HEIGHT=101&BBOX=-97.71011349745095%2C35.31234735623003%2C-97.4327087122947%2C35.58975214138628
+
+
+*/	
+
+// initialize map
+
+// hydrology overlay layer
+
+
+var hydro = L.esri.tiledMapLayer('http://hydrology.esri.com/arcgis/rest/services/WorldHydroReferenceOverlay/MapServer', {
+zIndex: 5,
+detectRetina: true
+});
+
+map.addLayer(hydro);
+
+
+
+// basemap layer groups so the hydro overlay always overlays the various basemaps
+var nationalGeographic = L.esri.basemapLayer('NationalGeographic'),
+esriTopo = L.esri.basemapLayer('Topographic'),
+esriShadedRelief = L.esri.basemapLayer('ShadedRelief'),
+esriImagery = L.esri.basemapLayer('Imagery');
+
+// add default layers to map
+//map.addLayer(esriTopo);
+
+// json object for layer switcher control basemaps
+var baseLayers = {
+"National Geographic": nationalGeographic,
+"Esri Topographic": esriTopo,
+"Shaded Relief": esriShadedRelief,
+"Imagery": esriImagery
+};
+
+var overLayMaps = { 
+	//"Taxes with years" : taxes_year, 
+	"Taxes without years" : taxes_no_year
+	} ;  
+
+// add layer groups to layer switcher control
+var controlLayers = L.control.layers(baseLayers, overLayMaps, {collapsed: false}).addTo(map);
+
+taxes_no_year.bringToFront();
+//taxes_year.bringToFront();
+
+
+
+</script>
+
+</body>
+</html>
