@@ -44,8 +44,8 @@ zoom: 10
 });
 
 // basemap
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+L.tileLayer('https://c.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors',
 }).addTo( map );
 
 
@@ -77,16 +77,15 @@ pointerCursor: true
 var owsrootUrl ="http://cunn1645.ddns.net/geoserver/ows";
 
 var defaultParameters = {
-
-		service: 'WFS',
-		version: '2.0.0',
-		request: 'GetFeature',
-		typeName: 'taxes:deliquients_years',
-		outputFormat: 'application/json',
-		format_options:'callback:getJson',
-		SrsName:'EPSG:4269',
-		cql_filter:'earliest_year<2017'
-	};
+        service: 'WFS',
+        version: '2.0.0',
+        request: 'GetFeature',
+        typeName: 'taxes:deliquients_years',
+        outputFormat: 'application/json',
+        format_options:'callback:getJson',
+        SrsName:'EPSG:4269',
+        cql_filter:'earliest_year<2017'
+    };
 
 var parametres = L.Util.extend(defaultParameters);
 
@@ -110,32 +109,32 @@ dataType:'json',
 jsonpCallback:'getJson',
 success: function(response){
    WFSLayer = L.geoJson(response,{
-		style:function(feature){
-			return {
-				flllColor: setColor(feature.properties.earliest_year),
-				stroke:true,
-				fillOpacity:0
-			};
-		},
-		onEachFeature: function (feature, layer){
-			popupOptions = {maxWidth: 400};
-			layer.bindPopup(
-			"<span style='color: green'>Taxes Due Since: </span>" + feature.properties.earliest_year +
-			"<br />" + 
-			"<span style='color: green'>Primary Address: </span> " + feature.properties.mailingaddress1 + 
-			"<br />" + 
-			"<span style='color: green'>Secondy Address: </span>" + feature.properties.mailingaddress2 +
-			"<br />" + 
-			"<span style='color: green'>Primary Name: </span>" + feature.properties.name1 +
-			"<br />" + 
-			"<span style='color: green'>Second Name: </span>" + feature.properties.name2 +
-			"<br />" + 
-			"<span style='color: green'>Zipcode: </span>" + feature.properties.zipcode +
-			"<br />" + 
-			"<span style='color: green'>Tax Website: </span> <a href='" +  feature.properties.tax_link	+ "'target='_blank'>Tax Site</a>"	
-			,popupOptions);
-		}
-	}).addTo(map);
+        style:function(feature){
+            return {
+                flllColor: setColor(feature.properties.earliest_year),
+                stroke:true,
+                fillOpacity:0
+            };
+        },
+        onEachFeature: function (feature, layer){
+            popupOptions = {maxWidth: 400};
+            layer.bindPopup(
+            "<span style='color: green'>Taxes Due Since: </span>" + feature.properties.earliest_year +
+            "<br />" + 
+            "<span style='color: green'>Primary Address: </span> " + feature.properties.mailingaddress1 + 
+            "<br />" + 
+            "<span style='color: green'>Secondy Address: </span>" + feature.properties.mailingaddress2 +
+            "<br />" + 
+            "<span style='color: green'>Primary Name: </span>" + feature.properties.name1 +
+            "<br />" + 
+            "<span style='color: green'>Second Name: </span>" + feature.properties.name2 +
+            "<br />" + 
+            "<span style='color: green'>Zipcode: </span>" + feature.properties.zipcode +
+            "<br />" + 
+            "<span style='color: green'>Tax Website: </span> <a href='" +  feature.properties.tax_link    + "'target='_blank'>Tax Site</a>"    
+            ,popupOptions);
+        }
+    }).addTo(map);
 }
 
 });
@@ -162,7 +161,7 @@ popup.setContent("<iframe src='"+URL+"' width='600' height='400' frameborder='0'
 map.openPopup(popup);
 }
 
-*/	
+*/    
 
 
 /*
@@ -172,7 +171,7 @@ http://cunn1645.ddns.net/geoserver/taxes/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=G
 http://cunn1645.ddns.net/geoserver/taxes/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=taxes%3Adeliquients_years&STYLES&LAYERS=taxes%3Adeliquients_years&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=50&X=50&Y=50&SRS=EPSG%3A4269&WIDTH=101&HEIGHT=101&BBOX=-97.71011349745095%2C35.31234735623003%2C-97.4327087122947%2C35.58975214138628
 
 
-*/	
+*/    
 
 // initialize map
 
@@ -206,9 +205,9 @@ var baseLayers = {
 };
 
 var overLayMaps = { 
-	//"Taxes with years" : taxes_year, 
-	"Taxes without years" : taxes_no_year
-	} ;  
+    //"Taxes with years" : taxes_year, 
+    "Taxes without years" : taxes_no_year
+    } ;  
 
 // add layer groups to layer switcher control
 var controlLayers = L.control.layers(baseLayers, overLayMaps, {collapsed: false}).addTo(map);
